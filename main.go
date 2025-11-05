@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-ldap/ldap/v3"
+	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -14,6 +17,19 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	l, err := ldap.DialURL("ldap://127.0.0.1:389")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer l.Close()
+
+	err = l.Bind("cn=superadmin,ou=users,dc=yunohost,dc=org", os.Args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Binded !")
 }
 
 func handleRoot(w http.ResponseWriter, r *http.Request) {
